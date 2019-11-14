@@ -21,12 +21,8 @@ class Config:
         if Config.config is not None:
             return Config.config
 
-        Config.setup_config_interactive()
-        if Config.config is not None:
-            return Config.config
-
-        logging.error('Config not properly setup.')
-        sys.exit(1)
+        Config.config = {}
+        return Config.config
 
     # Sets up config from file
     @staticmethod
@@ -40,12 +36,6 @@ class Config:
                 Config.config = json.load(file)
             except:
                 logging.error('Error loading config file: ' + sys.argv[1])
-
-    # Sets up config with interaction from the user
-    @staticmethod
-    def setup_config_interactive():
-        # TODO
-        pass
 
     # Returns the config Dict
     @staticmethod

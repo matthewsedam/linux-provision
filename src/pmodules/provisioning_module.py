@@ -8,13 +8,17 @@ class ProvisioningModule:
     def __init__(self):
         raise NotImplementedError
 
+    def get_name(self):
+        # Returns the name of the module
+        raise NotImplementedError
+
+    def run(self):
+        # Runs the provisioning for this module.
+        raise NotImplementedError
+
     def setup_config(self, config):
         # Should ensure all needed keys are in config by
         # prompting the user for the missing data.
         # Note: This method will be called by the
         # main configuration setup and must be implemented.
-        raise NotImplementedError
-
-    def run(self):
-        # Runs the provisioning for this module.
         raise NotImplementedError
