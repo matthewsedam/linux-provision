@@ -3,8 +3,10 @@
 # Released under the MIT License
 
 import logging
+from setup import setup
+
+# Import modules
 from pmodules.ssh_pmod import SSHPMod
-from util import setup
 
 MODULES = [SSHPMod()]
 
@@ -15,15 +17,13 @@ def main():
 
     for module in MODULES:
         try:
-            module.setup_config(config)
             module.run()
         except Exception as excp:
             excp_str = str(excp)
+            if len(excp_str) > 0:
+                excp_str = ': ' + excp_str
             logger.error('Error running module: ' +
-                         module.get_name() +
-                         (': ' + excp_str
-                          if len(excp_str) > 0
-                          else ''))
+                         module.get_name() + excp_str)
 
 
 if __name__ == '__main__':

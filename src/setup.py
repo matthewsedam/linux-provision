@@ -1,4 +1,4 @@
-# util.py
+# setup.py
 # Copyright 2019 Matthew Sedam
 # Released under the MIT License
 
@@ -7,30 +7,15 @@ import logging
 import os
 import platform
 import sys
-from config import Config
 
 LOG_FILE_NAME = ('linux_security_provision-' +
                  datetime.datetime.now().strftime('%m-%d-%y') +
                  '.log')
 
 
-# Does general setup
-def setup():
-    setup_logging()
-    if platform.system() != 'Linux':
-        logging.error('This script can only be run on Linux')
-        sys.exit(1)
-    if os.geteuid() != 0:
-        logging.error('You must run this script as root! Use sudo.')
-        sys.exit(1)
-
-    config = Config.get_config()
-    logging.info('Setup successful.')
-    return config
-
-
-# Sets up logging to write to file and to stdout
 def setup_logging():
+    """Sets up logging to write to LOG_FILE_NAME and to stdout."""
+
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
@@ -48,3 +33,27 @@ def setup_logging():
     console_handler.setFormatter(console_formatter)
     console_handler.setLevel(logging.INFO)
     logger.addHandler(console_handler)
+
+
+def setup():
+    """Does general setup and returns the config."""
+
+    setup_logging()
+    if platform.system() != 'Linux':
+        logging.error('This script can only be run on Linux')
+        sys.exit(1)
+    if os.geteuid() != 0:
+        logging.error('You must run this script as root! Use sudo.')
+        sys.exit(1)
+
+    config = None
+    if len(sys.argv) >= 2:
+        logging.info('Reading from config file: ' + sys.argv[1])
+        try:
+            with open(sys.argv[1]) as file:
+                config = json.load(file)
+        except:
+            logging.error('Error loading config file: ' + sys.argv[1])
+
+    logging.info('Setup successful.')
+    return config
