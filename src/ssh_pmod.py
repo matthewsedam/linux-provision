@@ -2,16 +2,11 @@
 # Copyright 2019 Matthew Sedam
 # Released under the MIT License
 
-import json
 import logging
 import os
 from functools import reduce
 from provisioning_module import ProvisioningModule
-from util import run_command
-
-
-BASE_HOME_DIR = '/home/'
-SSHD_CONFIG_FILE_NAME = '/etc/ssh/sshd_config'
+from util import BASE_HOME_DIR, run_command, SSHD_CONFIG_FILE_NAME
 
 
 class SSHPMod(ProvisioningModule):
@@ -101,8 +96,12 @@ class SSHPMod(ProvisioningModule):
 
     def _update_sshd_config(self):
         """
-        Updates SSHD_CONFIG_FILE_NAME to contain 'PasswordAuthentication no'.
+        Updates SSHD_CONFIG_FILE_NAME to contain
+        'PasswordAuthentication no'.
         """
+
+        self.logger.info('SSHPMod: Adding "PasswordAuthentication no" to ' +
+                         SSHD_CONFIG_FILE_NAME)
 
         sshd_config = None
         with open(SSHD_CONFIG_FILE_NAME) as file:
@@ -131,22 +130,24 @@ class SSHPMod(ProvisioningModule):
         return 'SSHPMod'
 
     def run(self):
-        """Runs the provisioning for this module. Does the following.
+        """
+        Runs the provisioning for this module. Does the following.
 
-           1. For every user, do the following:
-              1. Create ~/.ssh folder if needed
-              2. Set required permissions and ownership on ~/.ssh folder - 700
-              3. Delete ~/.ssh/authorized_keys
-              4. Delete ~/.ssh/known_hosts
-              5. Create ~/.ssh/authorized_keys with required permissions and
-                 ownership - 600
-              6. For each authorized key, add it to ~/.ssh/authorized_keys
-              7. Remove all ~/.ssh/id_* if user["deleteAllSSHKeys"] is true
-              8. If user["deleteAllSSHKeys"] is false, set all private keys
-                 to have permissions 600 and all public keys to have
-                 permissions - 644
-           2. Set "PasswordAuthentication no" in /etc/ssh/sshd_config and
-              restart the ssh service
+        1. For every user, do the following:
+            1. Create ~/.ssh folder if needed
+            2. Set required permissions and ownership on ~/.ssh folder - 700
+            3. Delete ~/.ssh/authorized_keys
+            4. Delete ~/.ssh/known_hosts
+            5. Create ~/.ssh/authorized_keys with required permissions and
+               ownership - 600
+            6. For each authorized key, add it to ~/.ssh/authorized_keys
+            7. Remove all ~/.ssh/id_* if user["deleteAllSSHKeys"] is true
+            8. If user["deleteAllSSHKeys"] is false, set all private keys
+               to have permissions 600 and all public keys to have
+               permissions - 644
+        2. Set "PasswordAuthentication no" in /etc/ssh/sshd_config and
+            restart the ssh service
+        3. Delete /root/.ssh
         """
 
         for user in self.users:
@@ -155,6 +156,8 @@ class SSHPMod(ProvisioningModule):
             ssh_dir = os.path.join(home_dir, '.ssh')
             authorized_keys = os.path.join(ssh_dir, 'authorized_keys')
             known_hosts = os.path.join(ssh_dir, 'known_hosts')
+
+            self.logger.info(f'SSHPMod: Processing user: {username}')
 
             # 1.1-1.2
             run_command(['mkdir', '-p', ssh_dir])
@@ -169,6 +172,7 @@ class SSHPMod(ProvisioningModule):
             run_command(['chmod', '600', authorized_keys])
 
             # 1.6
+            self.logger.info('SSHPMod: Adding authorized keys')
             with open(authorized_keys, 'a') as file:
                 file.write('\n'.join(user['authorizedKeys']) + '\n')
 
@@ -180,5 +184,9 @@ class SSHPMod(ProvisioningModule):
                 run_command(['chmod', '644',
                              os.path.join(ssh_dir, 'id_*.pub')])
 
+        # 2
         self._update_sshd_config()
         run_command(['service', 'ssh', 'restart'])
+
+        # 3
+        run_command(['rm', '-rf', '/root/.ssh'])

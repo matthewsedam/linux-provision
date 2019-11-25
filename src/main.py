@@ -6,18 +6,21 @@ import logging
 from setup import setup
 
 # Import modules
-from pmodules.ssh_pmod import SSHPMod
+from ssh_pmod import SSHPMod
+from user_pmod import UserPMod
 
-MODULES = [SSHPMod()]
+MODULES = [UserPMod, SSHPMod]
 
 
 def main():
     config = setup()
     logger = logging.getLogger()
 
-    for module in MODULES:
+    modules = [Module(config) for Module in MODULES]
+    for module in modules:
         try:
-            module.run()
+            # module.run()
+            pass
         except Exception as excp:
             excp_str = str(excp)
             if len(excp_str) > 0:

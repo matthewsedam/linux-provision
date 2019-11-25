@@ -5,7 +5,8 @@
 import logging
 import subprocess
 
-LOGGER = logging.getLogger()
+BASE_HOME_DIR = '/home/'
+SSHD_CONFIG_FILE_NAME = '/etc/ssh/sshd_config'
 
 
 def run_command(command):
@@ -15,7 +16,7 @@ def run_command(command):
     """
 
     logger = logging.getLogger()
-    logger.info(f'Util: Running command: {' '.join(command)}')
+    logger.info(f'Util: Running command: {" ".join(command)}')
 
     proc = subprocess.run(command,
                           stdout=subprocess.PIPE,
