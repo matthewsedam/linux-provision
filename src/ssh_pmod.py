@@ -6,10 +6,12 @@ import json
 import logging
 import os
 from functools import reduce
-from .provisioning_module import ProvisioningModule
+from provisioning_module import ProvisioningModule
+from util import run_command
 
 
 BASE_HOME_DIR = '/home/'
+SSHD_CONFIG_FILE_NAME = '/etc/ssh/sshd_config'
 
 
 class SSHPMod(ProvisioningModule):
@@ -97,6 +99,32 @@ class SSHPMod(ProvisioningModule):
 
         return new_user
 
+    def _update_sshd_config(self):
+        """
+        Updates SSHD_CONFIG_FILE_NAME to contain 'PasswordAuthentication no'.
+        """
+
+        sshd_config = None
+        with open(SSHD_CONFIG_FILE_NAME) as file:
+            sshd_config = file.read().strip().split('\n')
+
+        new_sshd_config = []
+        found_password_auth = False
+        for line in sshd_config:
+            if (not found_password_auth and
+                'passwordauthentication' in line.lower() and
+                    line.strip()[0] != '#'):
+                new_sshd_config.append('PasswordAuthentication no')
+                found_password_auth = True
+            else:
+                new_sshd_config.append(line)
+
+        if not found_password_auth:
+            new_sshd_config.append('PasswordAuthentication no')
+
+        with open(SSHD_CONFIG_FILE_NAME, 'w') as file:
+            file.write('\n'.join(new_sshd_config))
+
     def get_name(self):
         """Returns the name of the module."""
 
@@ -107,15 +135,50 @@ class SSHPMod(ProvisioningModule):
 
            1. For every user, do the following:
               1. Create ~/.ssh folder if needed
-              2. Set required permissions and ownership on ~/.ssh folder
-              3. Delete ~/.ssh/known_hosts
-              4. Delete ~/.ssh/authorizedKeys
-              5. Create ~/.ssh/authorizedKeys with required permissions and
-                 ownership
-              6. For each authorized key, add it to ~/.ssh/authorizedKeys
+              2. Set required permissions and ownership on ~/.ssh folder - 700
+              3. Delete ~/.ssh/authorized_keys
+              4. Delete ~/.ssh/known_hosts
+              5. Create ~/.ssh/authorized_keys with required permissions and
+                 ownership - 600
+              6. For each authorized key, add it to ~/.ssh/authorized_keys
               7. Remove all ~/.ssh/id_* if user["deleteAllSSHKeys"] is true
+              8. If user["deleteAllSSHKeys"] is false, set all private keys
+                 to have permissions 600 and all public keys to have
+                 permissions - 644
            2. Set "PasswordAuthentication no" in /etc/ssh/sshd_config and
               restart the ssh service
         """
 
-        raise NotImplementedError  # TODO
+        for user in self.users:
+            username = user['username']
+            home_dir = BASE_HOME_DIR + username
+            ssh_dir = os.path.join(home_dir, '.ssh')
+            authorized_keys = os.path.join(ssh_dir, 'authorized_keys')
+            known_hosts = os.path.join(ssh_dir, 'known_hosts')
+
+            # 1.1-1.2
+            run_command(['mkdir', '-p', ssh_dir])
+            run_command(['chown', '-R', username + ':' + username, ssh_dir])
+            run_command(['chmod', '700', ssh_dir])
+
+            # 1.3-1.5
+            run_command(['rm', authorized_keys])
+            run_command(['rm', known_hosts])
+            run_command(['touch', authorized_keys])
+            run_command(['chown', username + ':' + username, authorized_keys])
+            run_command(['chmod', '600', authorized_keys])
+
+            # 1.6
+            with open(authorized_keys, 'a') as file:
+                file.write('\n'.join(user['authorizedKeys']) + '\n')
+
+            # 1.7-1.8
+            if user['deleteAllSSHKeys']:
+                run_command(['rm', os.path.join(ssh_dir, 'id_*')])
+            else:
+                run_command(['chmod', '600', os.path.join(ssh_dir, 'id_*')])
+                run_command(['chmod', '644',
+                             os.path.join(ssh_dir, 'id_*.pub')])
+
+        self._update_sshd_config()
+        run_command(['service', 'ssh', 'restart'])
