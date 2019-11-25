@@ -23,4 +23,4 @@ class PortScanPMod(ProvisioningModule):
 
         logger = logging.getLogger()
         output = run_command(['nmap', '-p0-', 'localhost'])
-        logger.info('Nmap output:\n' + output[1])
+        logger.info('Nmap output:\n' + output[1].decode('utf-8'))
