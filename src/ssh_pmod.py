@@ -165,8 +165,8 @@ class SSHPMod(ProvisioningModule):
             run_command(['chmod', '700', ssh_dir])
 
             # 1.3-1.5
-            run_command(['rm', authorized_keys])
-            run_command(['rm', known_hosts])
+            run_command(['rm', '-f', authorized_keys])
+            run_command(['rm', '-f', known_hosts])
             run_command(['touch', authorized_keys])
             run_command(['chown', username + ':' + username, authorized_keys])
             run_command(['chmod', '600', authorized_keys])

@@ -16,13 +16,14 @@ def run_command(command):
     """
 
     logger = logging.getLogger()
-    logger.info(f'Util: Running command: {" ".join(command)}')
+    command_string = ' '.join(command)
+    logger.info(f'Start command: {command_string}')
 
     proc = subprocess.run(command,
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE)
     if proc.returncode != 0:
-        raise subprocess.CalledProcessError(
-            f'Error running process: {proc.stdout}: {proc.stderr}')
+        raise Exception(f'Error running process: {proc.stdout}: {proc.stderr}')
 
+    logger.info(f'Finish command: {command_string}')
     return (proc.returncode, proc.stdout, proc.stderr)
