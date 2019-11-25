@@ -20,8 +20,7 @@ def main():
     modules = [Module(config) for Module in MODULES]
     for module in modules:
         try:
-            # module.run()
-            pass
+            module.run()
         except Exception as excp:
             excp_str = str(excp)
             if len(excp_str) > 0:
