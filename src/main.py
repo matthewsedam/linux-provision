@@ -6,11 +6,12 @@ import logging
 from setup import setup
 
 # Import provisioning modules
+from port_scan_pmod import PortScanPMod
 from ssh_pmod import SSHPMod
 from update_pmod import UpdatePMod
 from user_pmod import UserPMod
 
-MODULES = [UserPMod, SSHPMod, UpdatePMod]
+MODULES = [UserPMod, SSHPMod, UpdatePMod, PortScanPMod]
 
 
 def main():
