@@ -5,11 +5,12 @@
 import logging
 from setup import setup
 
-# Import modules
+# Import provisioning modules
 from ssh_pmod import SSHPMod
+from update_pmod import UpdatePMod
 from user_pmod import UserPMod
 
-MODULES = [UserPMod, SSHPMod]
+MODULES = [UserPMod, SSHPMod, UpdatePMod]
 
 
 def main():
