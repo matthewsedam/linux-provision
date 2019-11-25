@@ -18,8 +18,8 @@ class UpdatePMod(ProvisioningModule):
         Runs the provisioning for this module. Does the following.
 
         1. Updates packages
-        2. Configures automatic updates.
-        3. Does full update.
+        2. Configures automatic updates
+        3. Does full update
         """
 
         run_command(['apt-get', 'update'])

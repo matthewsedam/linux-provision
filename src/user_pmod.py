@@ -17,7 +17,7 @@ class UserPMod(ProvisioningModule):
         """
         Runs the provisioning for this module. Does the following.
 
-        1. Delete the root password.
+        1. Delete the root password
         """
 
         run_command(['passwd', '-dl', 'root'])
