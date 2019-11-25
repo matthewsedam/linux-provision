@@ -24,13 +24,13 @@ The following actions are executed by the script in order.
 
 1. For every user, do the following:
             a. Create `~/.ssh` folder if needed
-            b. Set required permissions and ownership on `~/.ssh` folder - `700`
+            b. Set required permissions and ownership on `~/.ssh` folder: `700`
             c. Delete `~/.ssh/authorized_keys`
             d. Delete `~/.ssh/known_hosts`
-            e. Create `~/.ssh/authorized_keys` with required permissions and ownership - `600`
+            e. Create `~/.ssh/authorized_keys` with required permissions and ownership: `600`
             f. For each authorized key, add it to `~/.ssh/authorized_keys`
             g. Remove all `~/.ssh/id_*` if `user["deleteAllSSHKeys"]` is true
-            h. If `user["deleteAllSSHKeys"]` is false, set all private keys to have permissions `600` and all public keys to have permissions - `644`
+            h. If `user["deleteAllSSHKeys"]` is false, set all private keys to have permissions `600` and all public keys to have permissions: `644`
 2. Set `PasswordAuthentication no` in `/etc/ssh/sshd_config` and restart the `ssh` service
 3. Delete `/root/.ssh`
 
