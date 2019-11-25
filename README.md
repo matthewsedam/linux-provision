@@ -18,7 +18,7 @@ The following actions are executed by the script in order.
 
 ### User Setup
 
-1. Delete the root password.
+1. Delete the root password
 
 ### SSH Setup
 
@@ -37,8 +37,8 @@ The following actions are executed by the script in order.
 ### Update Setup
 
 1. Updates packages
-2. Configures automatic updates.
-3. Does full update.
+2. Configures automatic updates
+3. Does full update
 
 ### Port Scanning
 
