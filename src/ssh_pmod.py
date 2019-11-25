@@ -178,7 +178,7 @@ class SSHPMod(ProvisioningModule):
 
             # 1.7-1.8
             if user['deleteAllSSHKeys']:
-                run_command(['rm', os.path.join(ssh_dir, 'id_*')])
+                run_command(['rm', '-f', os.path.join(ssh_dir, 'id_*')])
             else:
                 run_command(['chmod', '600', os.path.join(ssh_dir, 'id_*')])
                 run_command(['chmod', '644',
