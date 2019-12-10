@@ -1,4 +1,4 @@
-# Linux Provision Script
+# Linux Provisioning Script
 
 This script provisions Linux machines. This script is intended to run on a freshly-installed machine and primarily on Ubuntu-based distros. This script assumes you are running as a non-root user with `sudo` privileges. Run the script with `sudo`. A user can pass in a `JSON` configuration file with the fields specified in the source to force the script to use pre-determined fields and not prompt the user.
 
